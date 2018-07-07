@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='easy_env',
-    version='0.0.1',
+    version='0.1.0',
     packages=['easy_env'],
     url='https://github.com/vaniakosmos/easy_env',
     license='MIT',
@@ -23,7 +23,6 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Utilities',
     ],
     keywords=[
