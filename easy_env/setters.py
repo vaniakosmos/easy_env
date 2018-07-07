@@ -30,7 +30,8 @@ def set_bytes(key: str, value: bytes, **_):
 
 def set_list(key: str, value: list, **kwargs):
     separator = kwargs.pop('separator', ',')
-    os.environ[key] = separator.join(map(str, value))
+    serializer = kwargs.pop('serializer', str)
+    os.environ[key] = separator.join(map(serializer, value))
 
 
 def set(key: str, value: Union[int, float, bool, str, bytes, list], **kwargs):
