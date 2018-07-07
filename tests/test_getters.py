@@ -122,14 +122,9 @@ class BytesTests(TestCase):
         os.environ.clear()
 
     def test_get(self):
-        os.environ['VALUE'] = '🔥'
+        os.environ['VALUE'] = 'Zm9v'
         value = environ.get_bytes('VALUE')
-        self.assertEqual(value, '🔥'.encode())
-
-    def test_cant_decode(self):
-        os.environ['VALUE'] = '🔥'
-        with self.assertRaises(UnicodeEncodeError):
-            value = environ.get_bytes('VALUE', encoding='ascii')
+        self.assertEqual(value, b'foo')
 
     def test_get_default(self):
         value = environ.get_bytes('VALUE', b'yes')

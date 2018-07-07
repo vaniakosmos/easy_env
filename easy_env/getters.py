@@ -1,3 +1,4 @@
+import base64
 import os
 from typing import Callable, Optional, TypeVar, Union
 
@@ -31,10 +32,6 @@ def bool_factory(value: str) -> bool:
     raise ValueError("Bad boolean value.")
 
 
-def bytes_factory(value: str, encoding: str) -> bytes:
-    return value.encode(encoding)
-
-
 def list_factory(value: str, separator: str, item_factory):
     return list(map(item_factory, value.split(separator)))
 
@@ -55,10 +52,8 @@ def get_bool(key: str, default: Optional[bool] = None, raise_error=False, **_) -
     return process(bool_factory, key, default, raise_error)
 
 
-def get_bytes(key: str, default: Optional[bytes] = None, raise_error=False, **kwargs) -> Optional[bytes]:
-    encoding = kwargs.pop('encoding', 'utf-8')
-    return process(lambda x: bytes_factory(x, encoding),
-                   key, default, raise_error)
+def get_bytes(key: str, default: Optional[bytes] = None, raise_error=False, **_) -> Optional[bytes]:
+    return process(base64.b64decode, key, default, raise_error)
 
 
 def get_list(key: str, default: Optional[list] = None, raise_error=False, **kwargs) -> Optional[list]:
