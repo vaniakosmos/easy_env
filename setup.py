@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='easy_env',
-    version='0.1.0',
+    version='0.1.1',
     packages=['easy_env'],
     url='https://github.com/vaniakosmos/easy_env',
     license='MIT',
