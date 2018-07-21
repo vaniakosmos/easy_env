@@ -1,6 +1,6 @@
 import base64
 import os
-from typing import Callable, Optional, TypeVar, overload
+from typing import Callable, Optional, Type, TypeVar, Union, overload
 
 
 __all__ = [
@@ -11,8 +11,19 @@ FALSE_VALUES = set("0 false f no n bad nope don't".split())
 T = TypeVar('T')
 
 
-def process(factory: Callable[[str], T], key: str, default: Optional[T],
-            raise_error: bool) -> Optional[T]:
+@overload
+def process(key: str, default: None = None,
+            factory: Union[Callable[[str], T], Type[T]] = str,
+            raise_error: bool = False) -> Optional[T]: ...
+
+
+@overload
+def process(key: str, default: T = None,
+            factory: Union[Callable[[str], T], Type[T]] = str,
+            raise_error: bool = False) -> T: ...
+
+
+def process(key, default=None, factory=str, raise_error=False):
     value = os.getenv(key, None)
     if value is None:
         if default is not None:
@@ -36,37 +47,92 @@ def list_factory(value: str, separator: str, item_factory):
     return list(map(item_factory, value.split(separator)))
 
 
-def get_int(key: str, default: Optional[int] = None,
-            raise_error=False, **_) -> Optional[int]:
-    return process(int, key, default, raise_error)
+# GET INT
+
+@overload
+def get_int(key: str, default: None = None, raise_error=False, **_) -> Optional[int]: ...
 
 
-def get_float(key: str, default: Optional[float] = None,
-              raise_error=False, **_) -> Optional[float]:
-    return process(float, key, default, raise_error)
+@overload
+def get_int(key: str, default: int, raise_error=False, **_) -> int: ...
 
 
-def get_str(key: str, default: Optional[str] = None,
-            raise_error=False, **_) -> Optional[str]:
-    return process(lambda x: str(x), key, default, raise_error)
+def get_int(key, default=None, raise_error=False, **_):
+    return process(key, default, int, raise_error)
 
 
-def get_bool(key: str, default: Optional[bool] = None,
-             raise_error=False, **_) -> Optional[bool]:
-    return process(bool_factory, key, default, raise_error)
+# GET FLOAT
+
+@overload
+def get_float(key: str, default: None = None, raise_error=False, **_) -> Optional[float]: ...
 
 
-def get_bytes(key: str, default: Optional[bytes] = None,
-              raise_error=False, **_) -> Optional[bytes]:
-    return process(base64.b64decode, key, default, raise_error)
+@overload
+def get_float(key: str, default: float, raise_error=False, **_) -> float: ...
 
 
-def get_list(key: str, default: Optional[list] = None,
-             raise_error=False, **kwargs) -> Optional[list]:
+def get_float(key, default=None, raise_error=False, **_):
+    return process(key, default, float, raise_error)
+
+
+# GET STR
+
+@overload
+def get_str(key: str, default: None = None, raise_error=False, **_) -> Optional[str]: ...
+
+
+@overload
+def get_str(key: str, default: str, raise_error=False, **_) -> str: ...
+
+
+def get_str(key, default=None, raise_error=False, **_) -> Optional[str]:
+    return process(key, default, lambda x: str(x), raise_error)
+
+
+# GET BOOL
+
+@overload
+def get_bool(key: str, default: None = None, raise_error=False, **_) -> Optional[bool]: ...
+
+
+@overload
+def get_bool(key: str, default: bool, raise_error=False, **_) -> bool: ...
+
+
+def get_bool(key, default=None, raise_error=False, **_):
+    return process(key, default, bool_factory, raise_error)
+
+
+# GET BYTES
+
+@overload
+def get_bytes(key: str, default: None = None, raise_error=False, **_) -> Optional[bytes]: ...
+
+
+@overload
+def get_bytes(key: str, default: bytes, raise_error=False, **_) -> bytes: ...
+
+
+def get_bytes(key, default=None, raise_error=False, **_):
+    return process(key, default, base64.b64decode, raise_error)
+
+
+# GET LIST
+
+@overload
+def get_list(key: str, default: None = None, raise_error=False, **_) -> Optional[list]: ...
+
+
+@overload
+def get_list(key: str, default: list, raise_error=False, **_) -> list: ...
+
+
+def get_list(key, default=None, raise_error=False, **kwargs):
     separator = kwargs.pop('separator', ',')
     item_factory = kwargs.pop('item_factory', str)
-    return process(lambda x: list_factory(x, separator, item_factory),
-                   key, default, raise_error)
+    return process(key, default,
+                   lambda x: list_factory(x, separator, item_factory),
+                   raise_error)
 
 
 def based_on_default(key: str, default: Optional[int] = None,
