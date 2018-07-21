@@ -1,6 +1,6 @@
 import base64
 import os
-from typing import Callable, Optional, TypeVar, Union
+from typing import Callable, Optional, TypeVar, overload
 
 
 __all__ = [
@@ -36,27 +36,33 @@ def list_factory(value: str, separator: str, item_factory):
     return list(map(item_factory, value.split(separator)))
 
 
-def get_int(key: str, default: Optional[int] = None, raise_error=False, **_) -> Optional[int]:
+def get_int(key: str, default: Optional[int] = None,
+            raise_error=False, **_) -> Optional[int]:
     return process(int, key, default, raise_error)
 
 
-def get_float(key: str, default: Optional[float] = None, raise_error=False, **_) -> Optional[float]:
+def get_float(key: str, default: Optional[float] = None,
+              raise_error=False, **_) -> Optional[float]:
     return process(float, key, default, raise_error)
 
 
-def get_str(key: str, default: Optional[str] = None, raise_error=False, **_) -> Optional[str]:
+def get_str(key: str, default: Optional[str] = None,
+            raise_error=False, **_) -> Optional[str]:
     return process(lambda x: str(x), key, default, raise_error)
 
 
-def get_bool(key: str, default: Optional[bool] = None, raise_error=False, **_) -> Optional[bool]:
+def get_bool(key: str, default: Optional[bool] = None,
+             raise_error=False, **_) -> Optional[bool]:
     return process(bool_factory, key, default, raise_error)
 
 
-def get_bytes(key: str, default: Optional[bytes] = None, raise_error=False, **_) -> Optional[bytes]:
+def get_bytes(key: str, default: Optional[bytes] = None,
+              raise_error=False, **_) -> Optional[bytes]:
     return process(base64.b64decode, key, default, raise_error)
 
 
-def get_list(key: str, default: Optional[list] = None, raise_error=False, **kwargs) -> Optional[list]:
+def get_list(key: str, default: Optional[list] = None,
+             raise_error=False, **kwargs) -> Optional[list]:
     separator = kwargs.pop('separator', ',')
     item_factory = kwargs.pop('item_factory', str)
     return process(lambda x: list_factory(x, separator, item_factory),
@@ -80,10 +86,22 @@ def based_on_default(key: str, default: Optional[int] = None,
     raise ValueError("Unknown type of default value.")
 
 
-def get(key: str, default: Optional[Union[int, float, bool, str, bytes, list]] = None,
-        raise_error=False, separator=',', item_factory=str, encoding='utf-8'):
+@overload
+def get(key: str, default: None = None, raise_error=False,
+        separator=',', item_factory=str, encoding='utf-8') -> str: ...
+
+
+@overload
+def get(key: str, default: T, raise_error=False,
+        separator=',', item_factory=str, encoding='utf-8') -> T: ...
+
+
+def get(key: str, default=None, raise_error=False,
+        separator=',', item_factory=str, encoding='utf-8') -> T:
     """Autodetect right type based on default."""
-    if default is not None:
-        return based_on_default(key, default, raise_error, separator=separator,
-                                item_factory=item_factory, encoding=encoding)
-    return get_str(key, default, raise_error)
+    if default is None:
+        return get_str(key, default, raise_error)
+    if not isinstance(default, (int, float, bool, str, bytes, list)):
+        raise ValueError('Bad type of default value.')
+    return based_on_default(key, default, raise_error, separator=separator,
+                            item_factory=item_factory, encoding=encoding)
