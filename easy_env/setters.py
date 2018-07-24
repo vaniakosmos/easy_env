@@ -4,7 +4,7 @@ from typing import Union
 
 
 __all__ = [
-    'set_int', 'set_float', 'set_bool', 'set_str', 'set_bytes', 'set_list', 'set',
+    'set_int', 'set_float', 'set_bool', 'set_str', 'set_bytes', 'set_list', 'set_var',
 ]
 
 
@@ -34,7 +34,7 @@ def set_list(key: str, value: list, **kwargs):
     os.environ[key] = separator.join(map(serializer, value))
 
 
-def set(key: str, value: Union[int, float, bool, str, bytes, list], **kwargs):
+def set_var(key: str, value: Union[int, float, bool, str, bytes, list], **kwargs):
     setters_map = {
         int: set_int,
         float: set_float,

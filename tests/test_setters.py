@@ -43,12 +43,12 @@ class SetterTests(TestCase):
         self.assertEqual(value, '1,2,3')
 
     def test_auto(self):
-        environ.set('VALUE', [1, 2, 3])
+        environ.set_var('VALUE', [1, 2, 3])
         value = os.environ.get('VALUE')
         self.assertEqual(value, '1,2,3')
-        environ.set('VALUE', True)
+        environ.set_var('VALUE', True)
         value = os.environ.get('VALUE')
         self.assertEqual(value, '1')
-        environ.set('VALUE', b'foo')
+        environ.set_var('VALUE', b'foo')
         value = os.environ.get('VALUE')
         self.assertEqual(value, 'Zm9v')
