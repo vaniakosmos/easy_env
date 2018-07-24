@@ -173,6 +173,13 @@ class ListTests(TestCase):
         with self.assertRaises(ValueError):
             environ.get_list('VALUE', item_factory=int)
 
+    def test_collections(self):
+        os.environ['VALUE'] = '1,2'
+        value = environ.get_list('VALUE', item_factory=int, collection=list)
+        self.assertListEqual(value, [1, 2])
+        value = environ.get_list('VALUE', item_factory=int, collection=set)
+        self.assertSetEqual(value, {1, 2})
+
 
 class AutoGetterTests(TestCase):
     def setUp(self):

@@ -43,8 +43,8 @@ def bool_factory(value: str) -> bool:
     raise ValueError("Bad boolean value.")
 
 
-def list_factory(value: str, separator: str, item_factory):
-    return list(map(item_factory, value.split(separator)))
+def list_factory(value: str, separator: str, item_factory, collection):
+    return collection(map(item_factory, value.split(separator)))
 
 
 # GET INT
@@ -130,9 +130,12 @@ def get_list(key: str, default: list, raise_error=False, **_) -> list: ...
 def get_list(key, default=None, raise_error=False, **kwargs):
     separator = kwargs.pop('separator', ',')
     item_factory = kwargs.pop('item_factory', str)
-    return process(key, default,
-                   lambda x: list_factory(x, separator, item_factory),
-                   raise_error)
+    collection = kwargs.pop('collection', list)
+
+    def factory(x):
+        return list_factory(x, separator, item_factory, collection)
+
+    return process(key, default, factory, raise_error)
 
 
 def based_on_default(key: str, default: Optional[int] = None,
